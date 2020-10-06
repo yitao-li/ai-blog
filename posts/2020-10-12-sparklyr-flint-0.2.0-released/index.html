@@ -1936,6 +1936,8 @@ right &lt;- copy_to(sc, tibble::tibble(t = seq(10) + 1, v = seq(10) + 1L)) %&gt;
 ##  9 1970-01-01 00:00:09     9    10
 ## 10 1970-01-01 00:00:10    10    11</code></pre>
 <p>Notice regardless of which temporal direction is selected, all timestamps and <code>u</code> values from <code>left</code> will always be present in the output, and the <code>v</code> column in the output contains <code>NA</code> whenever there is no record from <code>right</code> that meets the matching criteria.</p>
+<h2 id="ols-regression">OLS Regression</h2>
+<p>You might be wondering whether the version of this functionality in Flint is more or less identical to <code>lm()</code> in R. Turns out it has much more to offer than <code>lm()</code> does. A OLS regression in Flint will compute useful metrics such as <a href="https://en.wikipedia.org/wiki/Akaike_information_criterion">Akaike information criterion</a> and <a href="https://en.wikipedia.org/wiki/Bayesian_information_criterion">Bayesian information criterion</a>, both of which are useful more model selection purposes, and the calculations of both are parallelized by Flint to fully utilize computational power available in a Spark cluster. In addition, Flint supports ignoring regressors that are constant or nearly constant, which becomes useful when an intercept term is included. To see why this is the case, we need to briefly examine the goal of the OLS regression, which is to find some column vector of coefficients <span class="math inline">\(\mathbf{\beta}\)</span> that minimizes <span class="math inline">\(\|\mathbf{y} - \mathbf{X} \mathbf{\beta}\|^2\)</span>, where <span class="math inline">\(\mathbf{y}\)</span> is the column vector of response variables, and <span class="math inline">\(\mathbf{X}\)</span> is a matrix consisting of columns of regressors plus an entire column of <span class="math inline">\(1\)</span>s representing the intercept terms. The solution to this problem is <span class="math inline">\(\mathbf{\beta} = (\mathbf{X}^\intercal\mathbf{X})^{-1}\mathbf{X}^\intercal\mathbf{y}\)</span>, assuming the Gram matrix <span class="math inline">\(\mathbf{X}^\intercal\mathbf{X}\)</span> is non-singular. However, if <span class="math inline">\(\mathbf{X}\)</span> contains a column of all <span class="math inline">\(1\)</span>s of intercept terms, and another column of formed by a regressor that is constant (or so), then columns of <span class="math inline">\(\mathbf{X}\)</span> will be linearly dependent (or nearly so) and <span class="math inline">\(\mathbf{X}^\intercal\mathbf{X}\)</span> will be singular (or nearly so), which presents an issue computation-wise. However, if a regressor is constant, then it essentially plays the same role as the intercept terms do, so simply excluding such constant regressor in <span class="math inline">\(\mathbf{X}\)</span> solves the problem. Also, speaking of inverting the Gram matrix, readers remembering the concept of “condition number” from numerical analysis must be thinking to themsolves how computing <span class="math inline">\(\mathbf{\beta} = (\mathbf{X}^\intercal\mathbf{X})^{-1}\mathbf{X}^\intercal\mathbf{y}\)</span> could be numerically unstable if <span class="math inline">\(\mathbf{X}^\intercal\mathbf{X}\)</span> has a large condition number. This is why Flint also outputs the condition number of the Gram matrix in the OLS regression result, so that one can sanity-check the underlying quadratic minimization problem being solved is well-conditioned.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <div class="article-footer">
@@ -2048,6 +2050,15 @@ Posts also available at <a href="https://www.r-bloggers.com">r-bloggers</a>
 <div class="d-appendix">
 </div>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 
 <!--radix_placeholder_site_after_body-->
 <!--/radix_placeholder_site_after_body-->
