@@ -21,7 +21,7 @@
 
 
 &lt;p&gt;Since &lt;a href="https://cran.r-project.org/web/packages/sparklyr.flint/index.html"&gt;&lt;code&gt;sparklyr.flint&lt;/code&gt;&lt;/a&gt;, a &lt;a href="https://sparklyr.ai"&gt;&lt;code&gt;sparklyr&lt;/code&gt;&lt;/a&gt; extension for leveraging &lt;a href="https://github.com/twosigma/flint"&gt;&lt;code&gt;Flint&lt;/code&gt;&lt;/a&gt; time series functionalities through &lt;code&gt;sparklyr&lt;/code&gt;, was &lt;a href="https://blogs.rstudio.com/ai/posts/2020-09-07-sparklyr-flint"&gt;introduced&lt;/a&gt; in September, we have made a number of enhancements to it, and have successfully submitted &lt;code&gt;sparklyr.flint&lt;/code&gt; 0.2 to CRAN recently.&lt;/p&gt;
-&lt;p&gt;In this blog post, we shall highlight the following new features and improvements from &lt;code&gt;sparklyr.flint&lt;/code&gt; 0.2:&lt;/p&gt;
+&lt;p&gt;In this blog post, we highlight the following new features and improvements from &lt;code&gt;sparklyr.flint&lt;/code&gt; 0.2:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="#asof-joins"&gt;ASOF Joins&lt;/a&gt; of Timeseries RDDs&lt;/li&gt;
 &lt;li&gt;&lt;a href="#ols-regression"&gt;OLS Regression&lt;/a&gt;&lt;/li&gt;
@@ -3433,8 +3433,8 @@ for (i in 1:length(ai_m)) {
 }, simplify = F) %&amp;gt;% do.call(plyr::rbind.fill,.) %&amp;gt;% 
   mutate(rowname = stringr::str_extract(rowname, &amp;#39;loss|val_loss|auc|val_auc&amp;#39;)) %&amp;gt;% 
   rename(epoch_1 = V1, epoch_2 = V2)&lt;/code&gt;&lt;/pre&gt;
-&lt;div id="htmlwidget-9ff4521df294f9a1642c" style="width:100%;height:auto;" class="datatables html-widget"&gt;&lt;/div&gt;
-&lt;script type="application/json" data-for="htmlwidget-9ff4521df294f9a1642c"&gt;{"x":{"filter":"none","data":[["1","2","3"],["val_auc","val_auc","val_auc"],[0.892,0.868,0.844],[0.893,0.855,0.845],["TFRobertaModel","TFGPT2Model","TFElectraModel"]],"container":"&lt;table class=\"display\"&gt;\n  &lt;thead&gt;\n    &lt;tr&gt;\n      &lt;th&gt; &lt;\/th&gt;\n      &lt;th&gt;metric&lt;\/th&gt;\n      &lt;th&gt;epoch_1&lt;\/th&gt;\n      &lt;th&gt;epoch_2&lt;\/th&gt;\n      &lt;th&gt;model_names&lt;\/th&gt;\n    &lt;\/tr&gt;\n  &lt;\/thead&gt;\n&lt;\/table&gt;","options":{"dom":"t","columnDefs":[{"className":"dt-right","targets":[2,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}&lt;/script&gt;
+&lt;div id="htmlwidget-69d34a9d67d3dfc82424" style="width:100%;height:auto;" class="datatables html-widget"&gt;&lt;/div&gt;
+&lt;script type="application/json" data-for="htmlwidget-69d34a9d67d3dfc82424"&gt;{"x":{"filter":"none","data":[["1","2","3"],["val_auc","val_auc","val_auc"],[0.892,0.868,0.844],[0.893,0.855,0.845],["TFRobertaModel","TFGPT2Model","TFElectraModel"]],"container":"&lt;table class=\"display\"&gt;\n  &lt;thead&gt;\n    &lt;tr&gt;\n      &lt;th&gt; &lt;\/th&gt;\n      &lt;th&gt;metric&lt;\/th&gt;\n      &lt;th&gt;epoch_1&lt;\/th&gt;\n      &lt;th&gt;epoch_2&lt;\/th&gt;\n      &lt;th&gt;model_names&lt;\/th&gt;\n    &lt;\/tr&gt;\n  &lt;\/thead&gt;\n&lt;\/table&gt;","options":{"dom":"t","columnDefs":[{"className":"dt-right","targets":[2,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}&lt;/script&gt;
 &lt;p&gt;Both the &lt;em&gt;RoBERTa&lt;/em&gt; and &lt;em&gt;Electra&lt;/em&gt; models show some additional improvements after 2 epochs of training, which cannot be said of &lt;em&gt;GPT-2&lt;/em&gt;. In this case, it is clear that it can be enough to train a state-of-the-art model even for a single epoch.&lt;/p&gt;
 &lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;In this post, we showed how to use state-of-the-art NLP models from R. To understand how to apply them to more complex tasks, it is highly recommended to review the &lt;a href="https://github.com/huggingface/transformers/tree/master/examples"&gt;transformers tutorial&lt;/a&gt;.&lt;/p&gt;
