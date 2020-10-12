@@ -1945,16 +1945,14 @@ right &lt;- copy_to(sc, tibble::tibble(t = seq(10) + 1, v = seq(10) + 1L)) %&gt;
 mtcars_ts &lt;- from_sdf(mtcars_sdf, is_sorted = TRUE, time_unit = &quot;SECONDS&quot;)
 model &lt;- ols_regression(mtcars_ts, mpg ~ hp + wt) %&gt;% to_sdf()
 
-print(model %&gt;% dplyr::pull(akaikeIC))
-## [1] 154.6523
+print(model %&gt;% dplyr::select(akaikeIC, bayesIC, cond))
 
-print(model %&gt;% dplyr::pull(bayesIC))
-## [1] 159.0495
+## # Source: spark&lt;?&gt; [?? x 3]
+##   akaikeIC bayesIC    cond
+##      &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1     155.    159. 345403.
 
-print(model %&gt;% dplyr::pull(cond))
-## [1] 345403.4
-
-## # ^ output says condition number of the Gram matrix was within reason
+# ^ output says condition number of the Gram matrix was within reason
 
 print(model %&gt;% dplyr::pull(beta))
 
