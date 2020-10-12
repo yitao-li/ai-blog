@@ -1894,7 +1894,8 @@ print(model %&gt;% dplyr::pull(beta))
 <h2 id="better-integration-with-sparklyr">Better Integration With <code>sparklyr</code></h2>
 <p>While <code>sparklyr.flint</code> 0.1 included a <code>collect()</code> method for exporting data from a Flint time-series RDD to an R data frame, it did not have a similar method for extracting the underlying Spark data frame from a Flint time-series RDD. This was clearly an oversight. In <code>sparklyr.flint</code> 0.2, one can call <code>to_sdf()</code> on a timeseries RDD to get back a Spark data frame that is usable in <code>sparklyr</code> (e.g., as shown by <code>model %&gt;% to_sdf() %&gt;% dplyr::pull(...)</code> examples from above). One can also get to the underlying Spark data frame JVM object reference by calling <code>spark_dataframe()</code> on a Flint time-series RDD (this is usually unnecessary in vast majority of <code>sparklyr</code> use cases though).</p>
 <h2 id="conclusion">Conclusion</h2>
-<p>We have presented a number of new features and improvements introduced in <code>sparklyr.flint</code> 0.2 and deep-dived into some of them in this blog post. We hope you are as excited about them as we are. Thanks for reading!</p>
+<p>We have presented a number of new features and improvements introduced in <code>sparklyr.flint</code> 0.2 and deep-dived into some of them in this blog post. We hope you are as excited about them as we are.</p>
+<p>Thanks for reading!</p>
 <h2 id="acknowledgement">Acknowledgement</h2>
 <p>The author would like to thank Mara (<a href="https://github.com/batpigandme">@batpigandme</a>), Sigrid (<a href="https://github.com/skeydan">@skeydan</a>), and Javier (<a href="https://github.com/javierluraschi">@javierluraschi</a>) for their fantastic editorial inputs on this blog post!</p>
 <!--radix_placeholder_article_footer-->
