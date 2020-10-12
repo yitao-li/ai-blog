@@ -20,26 +20,27 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +49,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #545454; font-weight: bold; } /* Annotation */
@@ -84,53 +85,55 @@ code span.wa { color: #545454; font-weight: bold; font-style: italic; } /* Warni
 </style>
 
   <!--radix_placeholder_meta_tags-->
-<title>RStudio AI Blog: sparklyr.flint 0.2: ASOF Joins, OLS Regression, and Additional Summarizers</title>
+<title>RStudio AI Blog: Optimizers in torch</title>
 
-<meta property="description" itemprop="description" content="We are excited to announce a number of powerful, new functionalities and improvements which are now part of sparklyr.flint 0.2!"/>
+<meta property="description" itemprop="description" content="Today, we wrap up our mini-series on torch basics, adding to our toolset two abstractions: loss functions and optimizers."/>
 
-<link rel="canonical" href="https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/"/>
+<link rel="canonical" href="https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/"/>
 <link rel="license" href="https://creativecommons.org/licenses/by/4.0/"/>
 <link rel="icon" type="image/png" href="../../images/favicon.png"/>
 
 <!--  https://schema.org/Article -->
-<meta property="article:published" itemprop="datePublished" content="2020-10-12"/>
-<meta property="article:created" itemprop="dateCreated" content="2020-10-12"/>
-<meta name="article:author" content="Yitao Li"/>
+<meta property="article:published" itemprop="datePublished" content="2020-10-09"/>
+<meta property="article:created" itemprop="dateCreated" content="2020-10-09"/>
+<meta name="article:author" content="Sigrid Keydana"/>
 
 <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-<meta property="og:title" content="RStudio AI Blog: sparklyr.flint 0.2: ASOF Joins, OLS Regression, and Additional Summarizers"/>
+<meta property="og:title" content="RStudio AI Blog: Optimizers in torch"/>
 <meta property="og:type" content="article"/>
-<meta property="og:description" content="We are excited to announce a number of powerful, new functionalities and improvements which are now part of sparklyr.flint 0.2!"/>
-<meta property="og:url" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/"/>
-<meta property="og:image" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/images/sparklyr-flint-0.2.jpg"/>
+<meta property="og:description" content="Today, we wrap up our mini-series on torch basics, adding to our toolset two abstractions: loss functions and optimizers."/>
+<meta property="og:url" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/"/>
+<meta property="og:image" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/images/preview.jpg"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:site_name" content="RStudio AI Blog"/>
 
 <!--  https://dev.twitter.com/cards/types/summary -->
 <meta property="twitter:card" content="summary_large_image"/>
-<meta property="twitter:title" content="RStudio AI Blog: sparklyr.flint 0.2: ASOF Joins, OLS Regression, and Additional Summarizers"/>
-<meta property="twitter:description" content="We are excited to announce a number of powerful, new functionalities and improvements which are now part of sparklyr.flint 0.2!"/>
-<meta property="twitter:url" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/"/>
-<meta property="twitter:image" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/images/sparklyr-flint-0.2.jpg"/>
+<meta property="twitter:title" content="RStudio AI Blog: Optimizers in torch"/>
+<meta property="twitter:description" content="Today, we wrap up our mini-series on torch basics, adding to our toolset two abstractions: loss functions and optimizers."/>
+<meta property="twitter:url" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/"/>
+<meta property="twitter:image" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/images/preview.jpg"/>
 
 <!--  https://scholar.google.com/intl/en/scholar/inclusion.html#indexing -->
-<meta name="citation_title" content="RStudio AI Blog: sparklyr.flint 0.2: ASOF Joins, OLS Regression, and Additional Summarizers"/>
-<meta name="citation_fulltext_html_url" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/"/>
+<meta name="citation_title" content="RStudio AI Blog: Optimizers in torch"/>
+<meta name="citation_fulltext_html_url" content="https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/"/>
 <meta name="citation_fulltext_world_readable" content=""/>
-<meta name="citation_online_date" content="2020/10/12"/>
-<meta name="citation_publication_date" content="2020/10/12"/>
-<meta name="citation_author" content="Yitao Li"/>
+<meta name="citation_online_date" content="2020/10/09"/>
+<meta name="citation_publication_date" content="2020/10/09"/>
+<meta name="citation_author" content="Sigrid Keydana"/>
 <meta name="citation_author_institution" content="RStudio"/>
 <!--/radix_placeholder_meta_tags-->
+  
+  <meta name="citation_reference" content="citation_title=Adam: A method for stochastic optimization;citation_publication_date=2017;citation_author=Diederik P. Kingma;citation_author=Jimmy Ba"/>
   <!--radix_placeholder_rmarkdown_metadata-->
 
 <script type="text/json" id="radix-rmarkdown-metadata">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["creative_commons","title","description","author","slug","date","categories","output","preview","citation_url","canonical_url"]}},"value":[{"type":"character","attributes":{},"value":["CC BY"]},{"type":"character","attributes":{},"value":["sparklyr.flint 0.2: ASOF Joins, OLS Regression, and Additional Summarizers"]},{"type":"character","attributes":{},"value":["We are excited to announce a number of powerful, new functionalities and improvements which are now part of sparklyr.flint 0.2!"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Yitao Li"]},{"type":"character","attributes":{},"value":["https://github.com/yitao-li"]},{"type":"character","attributes":{},"value":["RStudio"]},{"type":"character","attributes":{},"value":["https://www.rstudio.com"]}]}]},{"type":"character","attributes":{},"value":["sparklyr.flint-0.2.0"]},{"type":"character","attributes":{},"value":["10-12-2020"]},{"type":"character","attributes":{},"value":["R","Packages/Releases","Time Series"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["images/sparklyr-flint-0.2.jpg"]},{"type":"character","attributes":{},"value":["https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/"]},{"type":"character","attributes":{},"value":["https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/"]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["creative_commons","title","description","author","slug","date","categories","bibliography","output","preview","citation_url","canonical_url"]}},"value":[{"type":"character","attributes":{},"value":["CC BY"]},{"type":"character","attributes":{},"value":["Optimizers in torch"]},{"type":"character","attributes":{},"value":["Today, we wrap up our mini-series on torch basics, adding to our toolset two abstractions: loss functions and optimizers."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Sigrid Keydana"]},{"type":"character","attributes":{},"value":["RStudio"]},{"type":"character","attributes":{},"value":["https://www.rstudio.com/"]}]}]},{"type":"character","attributes":{},"value":["keydanatorchoptim"]},{"type":"character","attributes":{},"value":["10-09-2020"]},{"type":"character","attributes":{},"value":["Torch","R"]},{"type":"character","attributes":{},"value":["bibliography.bib"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["self_contained","toc"]}},"value":[{"type":"logical","attributes":{},"value":[false]},{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"character","attributes":{},"value":["images/preview.jpg"]},{"type":"character","attributes":{},"value":["https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/"]},{"type":"character","attributes":{},"value":["https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/"]}]}
 </script>
 <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["images/sparklyr-flint-0.2.jpg","sparklyr-flint-0.2.0_files/anchor-4.2.2/anchor.min.js","sparklyr-flint-0.2.0_files/bowser-1.9.3/bowser.min.js","sparklyr-flint-0.2.0_files/distill-2.2.21/template.v2.js","sparklyr-flint-0.2.0_files/header-attrs-2.4.1/header-attrs.js","sparklyr-flint-0.2.0_files/jquery-1.11.3/jquery.min.js","sparklyr-flint-0.2.0_files/webcomponents-2.0.0/webcomponents.js"]}
+  {"type":"character","attributes":{},"value":["bibliography.bib","images/preview.jpg","torch_network_with_optim_files/anchor-4.2.2/anchor.min.js","torch_network_with_optim_files/bowser-1.9.3/bowser.min.js","torch_network_with_optim_files/distill-2.2.21/template.v2.js","torch_network_with_optim_files/header-attrs-2.3/header-attrs.js","torch_network_with_optim_files/jquery-1.11.3/jquery.min.js","torch_network_with_optim_files/webcomponents-2.0.0/webcomponents.js"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
 <meta name="distill:offset" content="../.."/>
@@ -1807,6 +1810,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!--/radix_placeholder_distill-->
+  <script src="../../site_libs/header-attrs-2.3/header-attrs.js"></script>
   <script src="../../site_libs/jquery-1.11.3/jquery.min.js"></script>
   <script src="../../site_libs/anchor-4.2.2/anchor.min.js"></script>
   <script src="../../site_libs/bowser-1.9.3/bowser.min.js"></script>
@@ -1830,7 +1834,7 @@ gtag('config', 'UA-20375833-3');
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"sparklyr.flint 0.2: ASOF Joins, OLS Regression, and Additional Summarizers","description":"We are excited to announce a number of powerful, new functionalities and improvements which are now part of sparklyr.flint 0.2!","authors":[{"author":"Yitao Li","authorURL":"https://github.com/yitao-li","affiliation":"RStudio","affiliationURL":"https://www.rstudio.com","orcidID":""}],"publishedDate":"2020-10-12T00:00:00.000+00:00","citationText":"Li, 2020"}
+{"title":"Optimizers in torch","description":"Today, we wrap up our mini-series on torch basics, adding to our toolset two abstractions: loss functions and optimizers.","authors":[{"author":"Sigrid Keydana","authorURL":"#","affiliation":"RStudio","affiliationURL":"https://www.rstudio.com/","orcidID":""}],"publishedDate":"2020-10-09T00:00:00.000+00:00","citationText":"Keydana, 2020"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -1861,126 +1865,285 @@ gtag('config', 'UA-20375833-3');
 <!--/radix_placeholder_site_before_body-->
 
 <div class="d-title">
-<h1>sparklyr.flint 0.2: ASOF Joins, OLS Regression, and Additional Summarizers</h1>
+<h1>Optimizers in torch</h1>
 <!--radix_placeholder_categories-->
 <div class="dt-tags">
+  <a href="../../index.html#category:Torch" class="dt-tag">Torch</a>
   <a href="../../index.html#category:R" class="dt-tag">R</a>
-  <a href="../../index.html#category:Packages/Releases" class="dt-tag">Packages/Releases</a>
-  <a href="../../index.html#category:Time_Series" class="dt-tag">Time Series</a>
 </div>
 <!--/radix_placeholder_categories-->
-<p>We are excited to announce a number of powerful, new functionalities and improvements which are now part of sparklyr.flint 0.2!</p>
+<p><p>Today, we wrap up our mini-series on torch basics, adding to our toolset two abstractions: loss functions and optimizers.</p></p>
 </div>
 
 <div class="d-byline">
-  Yitao Li <a href="https://github.com/yitao-li" class="uri">https://github.com/yitao-li</a> (RStudio)<a href="https://www.rstudio.com" class="uri">https://www.rstudio.com</a>
+  Sigrid Keydana  (RStudio)<a href="https://www.rstudio.com/" class="uri">https://www.rstudio.com/</a>
   
-<br/>10-12-2020
+<br/>10-09-2020
 </div>
 
 <div class="d-article">
-<p>Since <a href="https://cran.r-project.org/web/packages/sparklyr.flint/index.html"><code>sparklyr.flint</code></a>, a <a href="https://sparklyr.ai"><code>sparklyr</code></a> extension for leveraging <a href="https://github.com/twosigma/flint">Flint</a> time series functionalities through <code>sparklyr</code>, was <a href="https://blogs.rstudio.com/ai/posts/2020-09-07-sparklyr-flint">introduced</a> in September, we have made a number of enhancements to it, and have successfully submitted <code>sparklyr.flint</code> 0.2 to CRAN recently.</p>
-<p>In this blog post, we highlight the following new features and improvements from <code>sparklyr.flint</code> 0.2:</p>
+<div class="d-contents d-contents-float">
+<nav class="l-text toc figcaption" id="TOC">
+<h3>Contents</h3>
 <ul>
-<li><a href="#asof-joins">ASOF Joins</a> of Timeseries RDDs</li>
-<li><a href="#ols-regression">OLS Regression</a></li>
-<li><a href="#additional-summarizers">Additional Summarizers</a></li>
-<li><a href="#better-integration-with-sparklyr">Better Integration With <code>sparklyr</code></a></li>
+<li><a href="#losses-and-loss-functions">Losses and loss functions</a></li>
+<li><a href="#optimizers">Optimizers</a></li>
+<li><a href="#simple-network-final-version">Simple network: final version</a></li>
 </ul>
-<h2 id="asof-joins">ASOF Joins</h2>
-<p>For those unfamiliar with the term, ASOF joins are temporal join operations based on inexact matching of timestamps. Within the context of <a href="https://spark.apache.org">Apache Spark</a>, a join operation, loosely speaking, matches records from two data frames (let’s call them <code>left</code> and <code>right</code>) based on some criteria. A temporal join implies matching records in <code>left</code> and <code>right</code> based on timestamps, and with inexact matching of timestamps permitted, it is typically useful to join <code>left</code> and <code>right</code> along one of the following temporal directions:</p>
-<ol type="1">
-<li>Looking behind: if a record from <code>left</code> has timestamp <code>t</code>, then it gets matched with ones from <code>right</code> having the most recent timestamp less than or equal to <code>t</code>.</li>
-<li>Looking ahead: if a record from <code>left</code> has timestamp <code>t,</code> then it gets matched with ones from <code>right</code> having the smallest timestamp greater than or equal to (or alternatively, strictly greater than) <code>t</code>.</li>
+</nav>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<p>This is the fourth and last installment in a series introducing <code>torch</code> basics. Initially, we <a href="https://blogs.rstudio.com/ai/posts/2020-10-01-torch-network-from-scratch/">focused on <em>tensors</em></a>. To illustrate their power, we coded a complete (if toy-size) neural network from scratch. We didn’t make use of any of <code>torch</code>’s higher-level capabilities – not even <em>autograd</em>, its automatic-differentiation feature.</p>
+<p>This changed in the <a href="https://blogs.rstudio.com/ai/posts/2020-10-05-torch-network-with-autograd">follow-up post</a>. No more thinking about derivatives and the chain rule; a single call to <code>backward()</code> did it all.</p>
+<p><a href="https://blogs.rstudio.com/ai/posts/2020-10-07-torch-modules">In the third post</a>, the code again saw a major simplification. Instead of tediously assembling a DAG<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> by hand, we let <em>modules</em> take care of the logic.</p>
+<p>Based on that last state, there are just two more things to do. For one, we still compute the loss by hand. And secondly, even though we get the gradients all nicely computed from <em>autograd</em>, we still loop over the model’s parameters, updating them all ourselves. You won’t be surprised to hear that none of this is necessary.</p>
+<h2 id="losses-and-loss-functions">Losses and loss functions</h2>
+<p><code>torch</code> comes with all the usual loss functions, such as mean squared error, cross entropy, Kullback-Leibler divergence, and the like. In general, there are two usage modes.</p>
+<p>Take the example of calculating mean squared error. One way is to call <code>nnf_mse_loss()</code> directly on the prediction and ground truth tensors. For example:</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre><code><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'>torch_randn</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>2</span>, <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'>torch_zeros</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>2</span>, <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'>nnf_mse_loss</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<pre><code>torch_tensor 
+0.682362
+[ CPUFloatType{} ]</code></pre>
+<p>Other loss functions designed to be called directly start with <code>nnf_</code> as well: <code>nnf_binary_cross_entropy()</code>, <code>nnf_nll_loss()</code>, <code>nnf_kl_div()</code> … and so on.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>The second way is to define the algorithm in advance and call it at some later time. Here, respective constructors all start with <code>nn_</code> and end in <code>_loss</code>. For example: <code>nn_bce_loss()</code>, <code>nn_nll_loss(),</code> <code>nn_kl_div_loss()</code> …<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre><code><span class='va'>loss</span> <span class='op'>&lt;-</span> <span class='fu'>nn_mse_loss</span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='fu'>loss</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<pre><code>torch_tensor 
+0.682362
+[ CPUFloatType{} ]</code></pre>
+<p>This method may be preferable when one and the same algorithm should be applied to more than one pair of tensors.</p>
+<h2 id="optimizers">Optimizers</h2>
+<p>So far, we’ve been updating model parameters following a simple strategy: The gradients told us which direction on the loss curve was downward; the learning rate told us how big of a step to take. What we did was a straightforward implementation of <em>gradient descent</em>.</p>
+<p>However, optimization algorithms used in deep learning get a lot more sophisticated than that. Below, we’ll see how to replace our manual updates using <code>optim_adam()</code>, <code>torch</code>’s implementation of the Adam algorithm <span class="citation" data-cites="kingma2017adam">(Kingma and Ba <a href="#ref-kingma2017adam" role="doc-biblioref">2017</a>)</span>. First though, let’s take a quick look at how <code>torch</code> optimizers work.</p>
+<p>Here is a very simple network, consisting of just one linear layer, to be called on a single data point.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre><code><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'>torch_randn</span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>3</span><span class='op'>)</span>
+
+<span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'>nn_linear</span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>1</span><span class='op'>)</span>
+<span class='va'>model</span><span class='op'>$</span><span class='va'>parameters</span>
+</code></pre>
+</div>
+</div>
+<pre><code>$weight
+torch_tensor 
+-0.0385  0.1412 -0.5436
+[ CPUFloatType{1,3} ]
+
+$bias
+torch_tensor 
+-0.1950
+[ CPUFloatType{1} ]</code></pre>
+<p>When we create an optimizer, we tell it what parameters it is supposed to work on.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre><code><span class='va'>optimizer</span> <span class='op'>&lt;-</span> <span class='fu'>optim_adam</span><span class='op'>(</span><span class='va'>model</span><span class='op'>$</span><span class='va'>parameters</span>, lr <span class='op'>=</span> <span class='fl'>0.01</span><span class='op'>)</span>
+<span class='va'>optimizer</span>
+</code></pre>
+</div>
+</div>
+<pre><code>&lt;optim_adam&gt;
+  Inherits from: &lt;torch_Optimizer&gt;
+  Public:
+    add_param_group: function (param_group) 
+    clone: function (deep = FALSE) 
+    defaults: list
+    initialize: function (params, lr = 0.001, betas = c(0.9, 0.999), eps = 1e-08, 
+    param_groups: list
+    state: list
+    step: function (closure = NULL) 
+    zero_grad: function () </code></pre>
+<p>At any time, we can inspect those parameters:</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre><code><span class='va'>optimizer</span><span class='op'>$</span><span class='va'>param_groups</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>$</span><span class='va'>params</span>
+</code></pre>
+</div>
+</div>
+<pre><code>$weight
+torch_tensor 
+-0.0385  0.1412 -0.5436
+[ CPUFloatType{1,3} ]
+
+$bias
+torch_tensor 
+-0.1950
+[ CPUFloatType{1} ]</code></pre>
+<p>Now we perform the forward and backward passes. The backward pass calculates the gradients, but does <em>not</em> update the parameters, as we can see both from the model <em>and</em> the optimizer objects:</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre><code><span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>model</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span>
+<span class='va'>out</span><span class='op'>$</span><span class='fu'>backward</span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='va'>optimizer</span><span class='op'>$</span><span class='va'>param_groups</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>$</span><span class='va'>params</span>
+<span class='va'>model</span><span class='op'>$</span><span class='va'>parameters</span>
+</code></pre>
+</div>
+</div>
+<pre><code>$weight
+torch_tensor 
+-0.0385  0.1412 -0.5436
+[ CPUFloatType{1,3} ]
+
+$bias
+torch_tensor 
+-0.1950
+[ CPUFloatType{1} ]
+
+$weight
+torch_tensor 
+-0.0385  0.1412 -0.5436
+[ CPUFloatType{1,3} ]
+
+$bias
+torch_tensor 
+-0.1950
+[ CPUFloatType{1} ]</code></pre>
+<p>Calling <code>step()</code> on the optimizer actually <em>performs</em> the updates. Again, let’s check that both model and optimizer now hold the updated values:</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre><code><span class='va'>optimizer</span><span class='op'>$</span><span class='fu'>step</span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='va'>optimizer</span><span class='op'>$</span><span class='va'>param_groups</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>$</span><span class='va'>params</span>
+<span class='va'>model</span><span class='op'>$</span><span class='va'>parameters</span>
+</code></pre>
+</div>
+</div>
+<pre><code>NULL
+$weight
+torch_tensor 
+-0.0285  0.1312 -0.5536
+[ CPUFloatType{1,3} ]
+
+$bias
+torch_tensor 
+-0.2050
+[ CPUFloatType{1} ]
+
+$weight
+torch_tensor 
+-0.0285  0.1312 -0.5536
+[ CPUFloatType{1,3} ]
+
+$bias
+torch_tensor 
+-0.2050
+[ CPUFloatType{1} ]</code></pre>
+<p>If we perform optimization in a loop, we need to make sure to call <code>optimizer$zero_grad()</code> on every step, as otherwise gradients would be accumulated. You can see this in our final version of the network.</p>
+<h2 id="simple-network-final-version">Simple network: final version</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre><code><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://torch.mlverse.org/docs'>torch</a></span><span class='op'>)</span>
+
+<span class='co'>### generate training data -----------------------------------------------------</span>
+
+<span class='co'># input dimensionality (number of input features)</span>
+<span class='va'>d_in</span> <span class='op'>&lt;-</span> <span class='fl'>3</span>
+<span class='co'># output dimensionality (number of predicted features)</span>
+<span class='va'>d_out</span> <span class='op'>&lt;-</span> <span class='fl'>1</span>
+<span class='co'># number of observations in training set</span>
+<span class='va'>n</span> <span class='op'>&lt;-</span> <span class='fl'>100</span>
+
+
+<span class='co'># create random data</span>
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/torch_randn.html'>torch_randn</a></span><span class='op'>(</span><span class='va'>n</span>, <span class='va'>d_in</span><span class='op'>)</span>
+<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='va'>x</span><span class='op'>[</span>, <span class='fl'>1</span>, <span class='cn'>NULL</span><span class='op'>]</span> <span class='op'>*</span> <span class='fl'>0.2</span> <span class='op'>-</span> <span class='va'>x</span><span class='op'>[</span>, <span class='fl'>2</span>, <span class='cn'>NULL</span><span class='op'>]</span> <span class='op'>*</span> <span class='fl'>1.3</span> <span class='op'>-</span> <span class='va'>x</span><span class='op'>[</span>, <span class='fl'>3</span>, <span class='cn'>NULL</span><span class='op'>]</span> <span class='op'>*</span> <span class='fl'>0.5</span> <span class='op'>+</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/torch_randn.html'>torch_randn</a></span><span class='op'>(</span><span class='va'>n</span>, <span class='fl'>1</span><span class='op'>)</span>
+
+
+
+<span class='co'>### define the network ---------------------------------------------------------</span>
+
+<span class='co'># dimensionality of hidden layer</span>
+<span class='va'>d_hidden</span> <span class='op'>&lt;-</span> <span class='fl'>32</span>
+
+<span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_sequential.html'>nn_sequential</a></span><span class='op'>(</span>
+  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_linear.html'>nn_linear</a></span><span class='op'>(</span><span class='va'>d_in</span>, <span class='va'>d_hidden</span><span class='op'>)</span>,
+  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_relu.html'>nn_relu</a></span><span class='op'>(</span><span class='op'>)</span>,
+  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_linear.html'>nn_linear</a></span><span class='op'>(</span><span class='va'>d_hidden</span>, <span class='va'>d_out</span><span class='op'>)</span>
+<span class='op'>)</span>
+
+<span class='co'>### network parameters ---------------------------------------------------------</span>
+
+<span class='co'># for adam, need to choose a much higher learning rate in this problem</span>
+<span class='va'>learning_rate</span> <span class='op'>&lt;-</span> <span class='fl'>0.08</span>
+
+<span class='va'>optimizer</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/optim_adam.html'>optim_adam</a></span><span class='op'>(</span><span class='va'>model</span><span class='op'>$</span><span class='va'>parameters</span>, lr <span class='op'>=</span> <span class='va'>learning_rate</span><span class='op'>)</span>
+
+<span class='co'>### training loop --------------------------------------------------------------</span>
+
+<span class='kw'>for</span> <span class='op'>(</span><span class='va'>t</span> <span class='kw'>in</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>200</span><span class='op'>)</span> <span class='op'>{</span>
+  
+  <span class='co'>### -------- Forward pass -------- </span>
+  
+  <span class='va'>y_pred</span> <span class='op'>&lt;-</span> <span class='fu'>model</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+  
+  <span class='co'>### -------- compute loss -------- </span>
+  <span class='va'>loss</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nnf_mse_loss.html'>nnf_mse_loss</a></span><span class='op'>(</span><span class='va'>y_pred</span>, <span class='va'>y</span>, reduction <span class='op'>=</span> <span class='st'>"sum"</span><span class='op'>)</span>
+  <span class='kw'>if</span> <span class='op'>(</span><span class='va'>t</span> <span class='op'>%%</span> <span class='fl'>10</span> <span class='op'>==</span> <span class='fl'>0</span><span class='op'>)</span>
+    <span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span><span class='op'>(</span><span class='st'>"Epoch: "</span>, <span class='va'>t</span>, <span class='st'>"   Loss: "</span>, <span class='va'>loss</span><span class='op'>$</span><span class='fu'>item</span><span class='op'>(</span><span class='op'>)</span>, <span class='st'>"\n"</span><span class='op'>)</span>
+  
+  <span class='co'>### -------- Backpropagation -------- </span>
+  
+  <span class='co'># Still need to zero out the gradients before the backward pass, only this time,</span>
+  <span class='co'># on the optimizer object</span>
+  <span class='va'>optimizer</span><span class='op'>$</span><span class='fu'>zero_grad</span><span class='op'>(</span><span class='op'>)</span>
+  
+  <span class='co'># gradients are still computed on the loss tensor (no change here)</span>
+  <span class='va'>loss</span><span class='op'>$</span><span class='fu'>backward</span><span class='op'>(</span><span class='op'>)</span>
+  
+  <span class='co'>### -------- Update weights -------- </span>
+  
+  <span class='co'># use the optimizer to update model parameters</span>
+  <span class='va'>optimizer</span><span class='op'>$</span><span class='fu'>step</span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>}</span>
+</code></pre>
+</div>
+</div>
+<p>And that’s it! We’ve seen all the major actors on stage: tensors, <em>autograd</em>, modules, loss functions, and optimizers. In future posts, we’ll explore how to use <em>torch</em> for standard deep learning tasks involving images, text, tabular data, and more. Thanks for reading!</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-kingma2017adam">
+<p>Kingma, Diederik P., and Jimmy Ba. 2017. “Adam: A Method for Stochastic Optimization.” <a href="http://arxiv.org/abs/1412.6980">http://arxiv.org/abs/1412.6980</a>.</p>
+</div>
+</div>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>directed acyclic graph<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>The prefix <code>nnf_</code> was chosen because in PyTorch, the corresponding functions live in <a href="https://pytorch.org/docs/stable/nn.functional.html">torch.nn.functional</a>.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>This time, the corresponding PyTorch module is <a href="https://pytorch.org/docs/stable/nn.html">torch.nn</a>.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
-<p>However, oftentimes it is not useful to consider two timestamps as “matching” if they are too far apart. Therefore, an additional constraint on the maximum amount of time to look behind or look ahead is usually also part of an ASOF join operation.</p>
-<p>In <code>sparklyr.flint</code> 0.2, all ASOF join functionalities of Flint are accessible via the <code>asof_join()</code> method. For example, given 2 timeseries RDDs <code>left</code> and <code>right</code>:</p>
-<pre><code>library(sparklyr)
-library(sparklyr.flint)
-
-sc &lt;- spark_connect(master = &quot;local&quot;)
-left &lt;- copy_to(sc, tibble::tibble(t = seq(10), u = seq(10))) %&gt;%
-  from_sdf(is_sorted = TRUE, time_unit = &quot;SECONDS&quot;, time_column = &quot;t&quot;)
-right &lt;- copy_to(sc, tibble::tibble(t = seq(10) + 1, v = seq(10) + 1L)) %&gt;%
-  from_sdf(is_sorted = TRUE, time_unit = &quot;SECONDS&quot;, time_column = &quot;t&quot;)</code></pre>
-<p>The following prints the result of matching each record from <code>left</code> with the most recent record(s) from <code>right</code> that are, at most, 1 second behind.</p>
-<pre><code>print(asof_join(left, right, tol = &quot;1s&quot;, direction = &quot;&gt;=&quot;) %&gt;% to_sdf())
-
-## # Source: spark&lt;?&gt; [?? x 3]
-##    time                    u     v
-##    &lt;dttm&gt;              &lt;int&gt; &lt;int&gt;
-##  1 1970-01-01 00:00:01     1    NA
-##  2 1970-01-01 00:00:02     2     2
-##  3 1970-01-01 00:00:03     3     3
-##  4 1970-01-01 00:00:04     4     4
-##  5 1970-01-01 00:00:05     5     5
-##  6 1970-01-01 00:00:06     6     6
-##  7 1970-01-01 00:00:07     7     7
-##  8 1970-01-01 00:00:08     8     8
-##  9 1970-01-01 00:00:09     9     9
-## 10 1970-01-01 00:00:10    10    10</code></pre>
-<p>Whereas if we change the temporal direction to “&lt;”, then each record from <code>left</code> will be matched with any record(s) from <code>right</code> that is strictly in the future and is at most 1 second ahead of the current record from <code>left</code>:</p>
-<pre><code>print(asof_join(left, right, tol = &quot;1s&quot;, direction = &quot;&lt;&quot;) %&gt;% to_sdf())
-
-## # Source: spark&lt;?&gt; [?? x 3]
-##    time                    u     v
-##    &lt;dttm&gt;              &lt;int&gt; &lt;int&gt;
-##  1 1970-01-01 00:00:01     1     2
-##  2 1970-01-01 00:00:02     2     3
-##  3 1970-01-01 00:00:03     3     4
-##  4 1970-01-01 00:00:04     4     5
-##  5 1970-01-01 00:00:05     5     6
-##  6 1970-01-01 00:00:06     6     7
-##  7 1970-01-01 00:00:07     7     8
-##  8 1970-01-01 00:00:08     8     9
-##  9 1970-01-01 00:00:09     9    10
-## 10 1970-01-01 00:00:10    10    11</code></pre>
-<p>Notice regardless of which temporal direction is selected, an outer-left join is always performed (i.e., all timestamp values and <code>u</code> values of <code>left</code> from above will always be present in the output, and the <code>v</code> column in the output will contain <code>NA</code> whenever there is no record from <code>right</code> that meets the matching criteria).</p>
-<h2 id="ols-regression">OLS Regression</h2>
-<p>You might be wondering whether the version of this functionality in Flint is more or less identical to <code>lm()</code> in R. Turns out it has much more to offer than <code>lm()</code> does. An OLS regression in Flint will compute useful metrics such as <a href="https://en.wikipedia.org/wiki/Akaike_information_criterion">Akaike information criterion</a> and <a href="https://en.wikipedia.org/wiki/Bayesian_information_criterion">Bayesian information criterion</a>, both of which are useful for model selection purposes, and the calculations of both are parallelized by Flint to fully utilize computational power available in a Spark cluster. In addition, Flint supports ignoring regressors that are constant or nearly constant, which becomes useful when an intercept term is included. To see why this is the case, we need to briefly examine the goal of the OLS regression, which is to find some column vector of coefficients <span class="math inline">\(\mathbf{\beta}\)</span> that minimizes <span class="math inline">\(\|\mathbf{y} - \mathbf{X} \mathbf{\beta}\|^2\)</span>, where <span class="math inline">\(\mathbf{y}\)</span> is the column vector of response variables, and <span class="math inline">\(\mathbf{X}\)</span> is a matrix consisting of columns of regressors plus an entire column of <span class="math inline">\(1\)</span>s representing the intercept terms. The solution to this problem is <span class="math inline">\(\mathbf{\beta} = (\mathbf{X}^\intercal\mathbf{X})^{-1}\mathbf{X}^\intercal\mathbf{y}\)</span>, assuming the Gram matrix <span class="math inline">\(\mathbf{X}^\intercal\mathbf{X}\)</span> is non-singular. However, if <span class="math inline">\(\mathbf{X}\)</span> contains a column of all <span class="math inline">\(1\)</span>s of intercept terms, and another column formed by a regressor that is constant (or nearly so), then columns of <span class="math inline">\(\mathbf{X}\)</span> will be linearly dependent (or nearly so) and <span class="math inline">\(\mathbf{X}^\intercal\mathbf{X}\)</span> will be singular (or nearly so), which presents an issue computation-wise. However, if a regressor is constant, then it essentially plays the same role as the intercept terms do. So simply excluding such a constant regressor in <span class="math inline">\(\mathbf{X}\)</span> solves the problem. Also, speaking of inverting the Gram matrix, readers remembering the concept of “condition number” from numerical analysis must be thinking to themselves how computing <span class="math inline">\(\mathbf{\beta} = (\mathbf{X}^\intercal\mathbf{X})^{-1}\mathbf{X}^\intercal\mathbf{y}\)</span> could be numerically unstable if <span class="math inline">\(\mathbf{X}^\intercal\mathbf{X}\)</span> has a large condition number. This is why Flint also outputs the condition number of the Gram matrix in the OLS regression result, so that one can sanity-check the underlying quadratic minimization problem being solved is well-conditioned.</p>
-<p>So, to summarize, the OLS regression functionality implemented in Flint not only outputs the solution to the problem, but also calculates useful metrics that help data scentists assess the sanity and predictive quality of the resulting model.</p>
-<p>To see OLS regression in action with <code>sparklyr.flint</code>, one can run the following example:</p>
-<pre><code>mtcars_sdf &lt;- copy_to(sc, mtcars, overwrite = TRUE) %&gt;%
-  dplyr::mutate(time = 0L)
-mtcars_ts &lt;- from_sdf(mtcars_sdf, is_sorted = TRUE, time_unit = &quot;SECONDS&quot;)
-model &lt;- ols_regression(mtcars_ts, mpg ~ hp + wt) %&gt;% to_sdf()
-
-print(model %&gt;% dplyr::select(akaikeIC, bayesIC, cond))
-
-## # Source: spark&lt;?&gt; [?? x 3]
-##   akaikeIC bayesIC    cond
-##      &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-## 1     155.    159. 345403.
-
-# ^ output says condition number of the Gram matrix was within reason
-
-print(model %&gt;% dplyr::pull(beta))
-
-## [[1]]
-## [1] -0.03177295 -3.87783074</code></pre>
-<h2 id="additional-summarizers">Additional Summarizers</h2>
-<p>The EWMA (Exponential Weighted Moving Average), EMA half-life, and the standardized moment summarizers (namely, skewness and kurtosis) along with a few others which were missing in <code>sparklyr.flint</code> 0.1 are now fully supported in <code>sparklyr.flint</code> 0.2.</p>
-<h2 id="better-integration-with-sparklyr">Better Integration With <code>sparklyr</code></h2>
-<p>While <code>sparklyr.flint</code> 0.1 included a <code>collect()</code> method for exporting data from a Flint time-series RDD to an R data frame, it did not have a similar method for extracting the underlying Spark data frame from a Flint time-series RDD. This was clearly an oversight. In <code>sparklyr.flint</code> 0.2, one can call <code>to_sdf()</code> on a timeseries RDD to get back a Spark data frame that is usable in <code>sparklyr</code> (e.g., as shown by <code>model %&gt;% to_sdf() %&gt;% dplyr::pull(...)</code> examples from above). One can also get to the underlying Spark data frame JVM object reference by calling <code>spark_dataframe()</code> on a Flint time-series RDD (this is usually unnecessary in vast majority of <code>sparklyr</code> use cases though).</p>
-<h2 id="conclusion">Conclusion</h2>
-<p>We have presented a number of new features and improvements introduced in <code>sparklyr.flint</code> 0.2 and dug into some of them in this blog post. We hope you are as excited about them as we are. Thanks for reading!</p>
-<h2 id="acknowledgement">Acknowledgement</h2>
-<p>The author would like to thank Mara (<a href="https://github.com/batpigandme">@batpigandme</a>), Sigrid (<a href="https://github.com/skeydan">@skeydan</a>), and Javier (<a href="https://github.com/javierluraschi">@javierluraschi</a>) for their fantastic editorial inputs on this blog post!</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+</section>
 <!--radix_placeholder_article_footer-->
 <div class="article-footer">
   <p class="social_footer">
     <span class="disqus-comments">
       <i class="fas fa-comments"></i>
       &nbsp;
-      <span class="disqus-comment-count" data-disqus-identifier="posts/2020-10-12-sparklyr-flint-0.2.0-released/">Comment on this article</span>
+      <span class="disqus-comment-count" data-disqus-identifier="posts/2020-10-09-torch-optim/">Comment on this article</span>
     </span>
     <span class="article-sharing">
       Share: &nbsp;
-      <a href="https://twitter.com/share?text=sparklyr.flint%200.2%3A%20ASOF%20Joins%2C%20OLS%20Regression%2C%20and%20Additional%20Summarizers&amp;url=https%3A%2F%2Fblogs.rstudio.com%2Ftensorflow%2Fposts%2F2020-10-12-sparklyr-flint-0.2.0-released%2F">
+      <a href="https://twitter.com/share?text=Optimizers%20in%20torch&amp;url=https%3A%2F%2Fblogs.rstudio.com%2Ftensorflow%2Fposts%2F2020-10-09-torch-optim%2F">
         <i class="fab fa-twitter"></i>
       </a>
-      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Fblogs.rstudio.com%2Ftensorflow%2Fposts%2F2020-10-12-sparklyr-flint-0.2.0-released%2F&amp;title=sparklyr.flint%200.2%3A%20ASOF%20Joins%2C%20OLS%20Regression%2C%20and%20Additional%20Summarizers">
+      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Fblogs.rstudio.com%2Ftensorflow%2Fposts%2F2020-10-09-torch-optim%2F&amp;title=Optimizers%20in%20torch">
         <i class="fab fa-linkedin"></i>
       </a>
     </span>
@@ -1989,8 +2152,8 @@ print(model %&gt;% dplyr::pull(beta))
   <div id="disqus_thread" class="hidden"></div>
   <script>
 var disqus_config = function () {
-  this.page.url = 'https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/';
-  this.page.identifier = 'posts/2020-10-12-sparklyr-flint-0.2.0-released/';
+  this.page.url = 'https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/';
+  this.page.identifier = 'posts/2020-10-09-torch-optim/';
 };
 (function() {
   var d = document, s = d.createElement('script');
@@ -2078,30 +2241,23 @@ Posts also available at <a href="https://www.r-bloggers.com">r-bloggers</a>
 <div class="d-appendix">
 </div>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
 
 <!--radix_placeholder_site_after_body-->
 <!--/radix_placeholder_site_after_body-->
 <!--radix_placeholder_appendices-->
 <div class="appendix-bottom">
+  <h3 id="references">References</h3>
+  <div id="references-listing"></div>
   <h3 id="reuse">Reuse</h3>
   <p>Text and figures are licensed under Creative Commons Attribution <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The figures that have been reused from other sources don't fall under this license and can be recognized by a note in their caption: "Figure from ...".</p>
   <h3 id="citation">Citation</h3>
   <p>For attribution, please cite this work as</p>
-  <pre class="citation-appendix short">Li (2020, Oct. 12). RStudio AI Blog: sparklyr.flint 0.2: ASOF Joins, OLS Regression, and Additional Summarizers. Retrieved from https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/</pre>
+  <pre class="citation-appendix short">Keydana (2020, Oct. 9). RStudio AI Blog: Optimizers in torch. Retrieved from https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/</pre>
   <p>BibTeX citation</p>
-  <pre class="citation-appendix long">@misc{sparklyr.flint-0.2.0,
-  author = {Li, Yitao},
-  title = {RStudio AI Blog: sparklyr.flint 0.2: ASOF Joins, OLS Regression, and Additional Summarizers},
-  url = {https://blogs.rstudio.com/tensorflow/posts/2020-10-12-sparklyr-flint-0.2.0-released/},
+  <pre class="citation-appendix long">@misc{keydanatorchoptim,
+  author = {Keydana, Sigrid},
+  title = {RStudio AI Blog: Optimizers in torch},
+  url = {https://blogs.rstudio.com/tensorflow/posts/2020-10-09-torch-optim/},
   year = {2020}
 }</pre>
 </div>
