@@ -1831,7 +1831,7 @@ left &lt;- copy_to(sc, tibble::tibble(t = seq(10), u = seq(10))) %&gt;%
   from_sdf(is_sorted = TRUE, time_unit = &quot;SECONDS&quot;, time_column = &quot;t&quot;)
 right &lt;- copy_to(sc, tibble::tibble(t = seq(10) + 1, v = seq(10) + 1L)) %&gt;%
   from_sdf(is_sorted = TRUE, time_unit = &quot;SECONDS&quot;, time_column = &quot;t&quot;)</code></pre>
-<p>The following prints the result of matching each record from <code>left</code> with the most recent record(s) from <code>right</code> that are, at most, 1 second behind.</p>
+<p>The following prints the result of matching each record from <code>left</code> with the most recent record(s) from <code>right</code> that are at most 1 second behind.</p>
 <pre><code>
 print(asof_join(left, right, tol = &quot;1s&quot;, direction = &quot;&gt;=&quot;) %&gt;% to_sdf())
 
