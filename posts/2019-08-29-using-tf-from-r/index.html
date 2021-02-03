@@ -53,35 +53,35 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #545454; font-weight: bold; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #a1024a; } /* BaseN */
+code span.al { color: #ad0000; } /* Alert */
+code span.an { color: #5e5e5e; } /* Annotation */
+code span.at { color: #20794d; } /* Attribute */
+code span.bn { color: #ad0000; } /* BaseN */
 code span.bu { } /* BuiltIn */
-code span.cf { color: #007faa; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #008000; } /* Char */
-code span.cn { color: #d91e18; } /* Constant */
-code span.co { color: #545454; } /* Comment */
-code span.cv { color: #545454; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #aa5d00; } /* DataType */
-code span.dv { color: #a1024a; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.cf { color: #007ba5; } /* ControlFlow */
+code span.ch { color: #20794d; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #5e5e5e; } /* Comment */
+code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+code span.dt { color: #ad0000; } /* DataType */
+code span.dv { color: #ad0000; } /* DecVal */
+code span.er { color: #ad0000; } /* Error */
 code span.ex { } /* Extension */
-code span.fl { color: #a1024a; } /* Float */
-code span.fu { color: #4254a7; } /* Function */
+code span.fl { color: #ad0000; } /* Float */
+code span.fu { color: #4758ab; } /* Function */
 code span.im { } /* Import */
-code span.in { color: #545454; font-weight: bold; } /* Information */
-code span.kw { color: #007faa; font-weight: bold; } /* Keyword */
-code span.op { color: #696969; } /* Operator */
-code span.ot { color: #007faa; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #008000; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #008000; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #008000; } /* VerbatimString */
-code span.wa { color: #545454; font-weight: bold; font-style: italic; } /* Warning */
+code span.in { color: #5e5e5e; } /* Information */
+code span.kw { color: #007ba5; } /* Keyword */
+code span.op { color: #5e5e5e; } /* Operator */
+code span.ot { color: #007ba5; } /* Other */
+code span.pp { color: #ad0000; } /* Preprocessor */
+code span.sc { color: #20794d; } /* SpecialChar */
+code span.ss { color: #20794d; } /* SpecialString */
+code span.st { color: #20794d; } /* String */
+code span.va { color: #111111; } /* Variable */
+code span.vs { color: #20794d; } /* VerbatimString */
+code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </style>
 
   <!--radix_placeholder_meta_tags-->
@@ -150,6 +150,7 @@ code span.wa { color: #545454; font-weight: bold; font-style: italic; } /* Warni
     var header = $('header').get(0);
     var headerHeight = header.offsetHeight;
     var headroom = new Headroom(header, {
+      tolerance: 5,
       onPin : function() {
         if (window.headroom_prevent_pin) {
           window.headroom_prevent_pin = false;
@@ -472,8 +473,15 @@ d-title {
   top: 0;
 }
 
+/* adjust viewport for navbar height */
+/* helps vertically center bootstrap (non-distill) content */
+.min-vh-100 {
+  min-height: calc(100vh - 100px) !important;
+}
+
 </style>
 
+<script src="../../site_libs/jquery-1.11.3/jquery.min.js"></script>
 <link href="../../site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet"/>
 <link href="../../site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet"/>
 <script src="../../site_libs/headroom-0.9.4/headroom.min.js"></script>
@@ -497,22 +505,19 @@ function offsetURL(url) {
   return offset ? offset + '/' + url : url;
 }
 
-function createIndex() {
-  var options = {
-    keys: [
-      "title",
-      "categories",
-      "description",
-      "contents"
-    ]
-  };
-  return new window.Fuse([],options);
-}
-
 function createFuseIndex() {
 
   // create fuse index
-  var options = { keys: ["title", "description", "contents"] };
+  var options = {
+    keys: [
+      { name: 'title', weight: 20 },
+      { name: 'categories', weight: 15 },
+      { name: 'description', weight: 10 },
+      { name: 'contents', weight: 5 },
+    ],
+    ignoreLocation: true,
+    threshold: 0
+  };
   var fuse = new window.Fuse([], options);
 
   // fetch the main search.json
@@ -580,29 +585,25 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             shouldSort: true,
             minMatchCharLength: 2,
             limit: 10,
-            keys: [
-              { name: 'title', weight: 20 },
-              { name: 'categories', weight: 15 },
-              { name: 'description', weight: 10 },
-              { name: 'contents', weight: 5 },
-            ],
           };
           var results = fuse.search(query, searchOptions);
           callback(results
             .map(function(result) { return result.item; })
-            .filter(function(item) { return !!item.description; })
           );
         },
         templates: {
           suggestion: function(suggestion) {
+            var img = suggestion.preview && Object.keys(suggestion.preview).length > 0
+              ? `<img src="${offsetURL(suggestion.preview)}"</img>`
+              : '';
             var html = `
               <div class="search-item">
                 <h3>${suggestion.title}</h3>
                 <div class="search-item-description">
-                  ${suggestion.description}
+                  ${suggestion.description || ''}
                 </div>
                 <div class="search-item-preview">
-                  <img src="${suggestion.preview ? offsetURL(suggestion.preview) : ''}"</img>
+                  ${img}
                 </div>
               </div>
             `;
@@ -625,6 +626,10 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 
 <style type="text/css">
+
+.nav-search {
+  font-size: x-small;
+}
 
 /* Algolioa Autocomplete */
 
@@ -700,6 +705,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 }
 
 .algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item h3 {
+  font-size: 1rem;
   margin-block-start: 0;
   margin-block-end: 5px;
 }
@@ -883,7 +889,7 @@ d-article pre code {
 d-article pre,
 d-article div.sourceCode,
 d-article div.sourceCode pre {
-  overflow: hidden;
+  overflow: auto;
 }
 
 d-article div.sourceCode {
@@ -925,6 +931,11 @@ d-article pre a {
 d-article pre a:hover {
   border-bottom: none;
   text-decoration: underline;
+}
+
+d-article details {
+  grid-column: text;
+  margin-bottom: 0.8em;
 }
 
 @media(min-width: 768px) {
@@ -1081,6 +1092,17 @@ d-article .citation {
 
 div.hanging-indent{
   margin-left: 1em; text-indent: -1em;
+}
+
+/* Citation hover box */
+
+.tippy-box[data-theme~=light-border] {
+  background-color: rgba(250, 250, 250, 0.95);
+}
+
+.tippy-content > p {
+  margin-bottom: 0;
+  padding: 2px;
 }
 
 
@@ -1748,7 +1770,7 @@ function init_distill() {
     var layout = $(this).attr('data-layout');
 
     // apply layout to markdown level block elements
-    var elements = $(this).children().not('div.sourceCode, pre, script');
+    var elements = $(this).children().not('details, div.sourceCode, pre, script');
     elements.each(function(i, el) {
       var layout_div = $('<div class="' + layout + '"></div>');
       if (layout_div.hasClass('shaded')) {
@@ -1863,6 +1885,20 @@ function init_distill() {
     // move appendix-bottom entries to the bottom
     $('.appendix-bottom').appendTo('d-appendix').children().unwrap();
     $('.appendix-bottom').remove();
+
+    // hoverable references
+    $('span.citation[data-cites]').each(function() {
+      var refHtml = $('#ref-' + $(this).attr('data-cites')).html();
+      window.tippy(this, {
+        allowHTML: true,
+        content: refHtml,
+        maxWidth: 500,
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start'
+      });
+    });
 
     // clear polling timer
     clearInterval(tid);
@@ -2023,15 +2059,19 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!--/radix_placeholder_distill-->
-  <script src="../../site_libs/header-attrs-2.5/header-attrs.js"></script>
+  <script src="../../site_libs/header-attrs-2.6/header-attrs.js"></script>
   <script src="../../site_libs/jquery-1.11.3/jquery.min.js"></script>
+  <script src="../../site_libs/popper-2.6.0/popper.min.js"></script>
+  <link href="../../site_libs/tippy-6.2.7/tippy.css" rel="stylesheet" />
+  <link href="../../site_libs/tippy-6.2.7/tippy-light-border.css" rel="stylesheet" />
+  <script src="../../site_libs/tippy-6.2.7/tippy.umd.min.js"></script>
   <script src="../../site_libs/anchor-4.2.2/anchor.min.js"></script>
   <script src="../../site_libs/bowser-1.9.3/bowser.min.js"></script>
   <script src="../../site_libs/webcomponents-2.0.0/webcomponents.js"></script>
   <script src="../../site_libs/distill-2.2.21/template.v2.js"></script>
   <!--radix_placeholder_site_in_header-->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-20375833-3"></script>
-<script>
+<script type="text/javascript" cookie-consent="tracking" async src="https://www.googletagmanager.com/gtag/js?id=UA-20375833-3"></script>
+<script type="text/javascript" cookie-consent="tracking">
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
@@ -2100,7 +2140,7 @@ gtag('config', 'UA-20375833-3');
 <p>So why is it you can define a Keras model as</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>keras</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>keras</span><span class='op'>)</span>
 <span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'>keras_model_sequential</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'>layer_dense</span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>32</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'>layer_dense</span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
@@ -2115,7 +2155,7 @@ gtag('config', 'UA-20375833-3');
 <p>Firstly, nothing of this would be possible without <code>reticulate</code>. <a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> <a href="https://rstudio.github.io/reticulate/">reticulate</a> is an R package designed to allow seemless interoperability between R and Python. If we absolutely wanted, we could construct a Keras model like this:</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/rstudio/reticulate'>reticulate</a></span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/rstudio/reticulate'>reticulate</a></span><span class='op'>)</span>
 <span class='va'>tf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/reticulate/man/import.html'>import</a></span><span class='op'>(</span><span class='st'>"tensorflow"</span><span class='op'>)</span>
 <span class='va'>m</span> <span class='op'>&lt;-</span> <span class='va'>tf</span><span class='op'>$</span><span class='va'>keras</span><span class='op'>$</span><span class='va'>models</span><span class='op'>$</span><span class='fu'>Sequential</span><span class='op'>(</span><span class='op'>)</span>
 <span class='va'>m</span><span class='op'>$</span><span class='va'>`__class__`</span>
@@ -2126,7 +2166,7 @@ gtag('config', 'UA-20375833-3');
 <p>We could go on adding layers …</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='va'>m</span><span class='op'>$</span><span class='fu'>add</span><span class='op'>(</span><span class='va'>tf</span><span class='op'>$</span><span class='va'>keras</span><span class='op'>$</span><span class='va'>layers</span><span class='op'>$</span><span class='fu'>Dense</span><span class='op'>(</span><span class='fl'>32</span>, <span class='st'>"relu"</span><span class='op'>)</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>m</span><span class='op'>$</span><span class='fu'>add</span><span class='op'>(</span><span class='va'>tf</span><span class='op'>$</span><span class='va'>keras</span><span class='op'>$</span><span class='va'>layers</span><span class='op'>$</span><span class='fu'>Dense</span><span class='op'>(</span><span class='fl'>32</span>, <span class='st'>"relu"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='va'>m</span><span class='op'>$</span><span class='fu'>add</span><span class='op'>(</span><span class='va'>tf</span><span class='op'>$</span><span class='va'>keras</span><span class='op'>$</span><span class='va'>layers</span><span class='op'>$</span><span class='fu'>Dense</span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span>
 <span class='va'>m</span><span class='op'>$</span><span class='va'>layers</span>
 </code></pre>
@@ -2142,7 +2182,7 @@ gtag('config', 'UA-20375833-3');
 <p>This is where <code>keras</code> comes into play. <code>keras</code> is where the TensorFlow-specific usability, re-usability, and convenience features live. <a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> Functionality provided by <code>keras</code> spans the whole range between boilerplate-avoidance over enabling elegant, R-like idioms to providing means of advanced feature usage. As an example for the first two, consider <code>layer_dense</code> which, among others, converts its <code>units</code> argument to an integer, and takes arguments in an order that allow it to be “pipe-added” to a model: Instead of</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'>keras_model_sequential</span><span class='op'>(</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'>keras_model_sequential</span><span class='op'>(</span><span class='op'>)</span>
 <span class='va'>model</span><span class='op'>$</span><span class='fu'>add</span><span class='op'>(</span><span class='fu'>layer_dense</span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>32L</span><span class='op'>)</span><span class='op'>)</span>
 </code></pre>
 </div>
@@ -2150,7 +2190,7 @@ gtag('config', 'UA-20375833-3');
 <p>we can just say</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'>keras_model_sequential</span><span class='op'>(</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'>keras_model_sequential</span><span class='op'>(</span><span class='op'>)</span>
 <span class='va'>model</span> <span class='op'>%&gt;%</span> <span class='fu'>layer_dense</span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>32</span><span class='op'>)</span>
 </code></pre>
 </div>
@@ -2158,7 +2198,7 @@ gtag('config', 'UA-20375833-3');
 <p>While these are nice to have, there is more. Advanced functionality in (Python) Keras mostly depends on the ability to subclass objects. One example is custom callbacks. If you were using Python, you’d have to subclass <code>tf.keras.callbacks.Callback</code>. From R, you can create an R6 class inheriting from <code>KerasCallback</code>, like so</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='va'>CustomCallback</span> <span class='op'>&lt;-</span> <span class='fu'>R6</span><span class='fu'>::</span><span class='kw'><a href='https://r6.r-lib.org/reference/R6Class.html'>R6Class</a></span><span class='op'>(</span><span class='st'>"CustomCallback"</span>,
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>CustomCallback</span> <span class='op'>&lt;-</span> <span class='fu'>R6</span><span class='fu'>::</span><span class='kw'><a href='https://r6.r-lib.org/reference/R6Class.html'>R6Class</a></span><span class='op'>(</span><span class='st'>"CustomCallback"</span>,
     inherit <span class='op'>=</span> <span class='va'>KerasCallback</span>,
     public <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
       on_train_begin <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>logs</span><span class='op'>)</span> <span class='op'>{</span>
@@ -2175,7 +2215,7 @@ gtag('config', 'UA-20375833-3');
 <p>This is because <code>keras</code> defines an actual Python class, <code>RCallback</code>, and maps your R6 class’ methods to it. Another example is <a href="https://tensorflow.rstudio.com/keras/articles/custom_models.html">custom models</a>, introduced on this blog <a href="https://blogs.rstudio.com/tensorflow/posts/2018-07-30-attention-layer/">about a year ago</a>. These models can be trained with custom training loops. In R, you use <code>keras_model_custom</code> to create one, for example, like this:</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='va'>m</span> <span class='op'>&lt;-</span> <span class='fu'>keras_model_custom</span><span class='op'>(</span>name <span class='op'>=</span> <span class='st'>"mymodel"</span>, <span class='kw'>function</span><span class='op'>(</span><span class='va'>self</span><span class='op'>)</span> <span class='op'>{</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>m</span> <span class='op'>&lt;-</span> <span class='fu'>keras_model_custom</span><span class='op'>(</span>name <span class='op'>=</span> <span class='st'>"mymodel"</span>, <span class='kw'>function</span><span class='op'>(</span><span class='va'>self</span><span class='op'>)</span> <span class='op'>{</span>
   <span class='va'>self</span><span class='op'>$</span><span class='va'>dense1</span> <span class='op'>&lt;-</span> <span class='fu'>layer_dense</span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>32</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span><span class='op'>)</span>
   <span class='va'>self</span><span class='op'>$</span><span class='va'>dense2</span> <span class='op'>&lt;-</span> <span class='fu'>layer_dense</span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>10</span>, activation <span class='op'>=</span> <span class='st'>"softmax"</span><span class='op'>)</span>
   
@@ -2197,7 +2237,7 @@ gtag('config', 'UA-20375833-3');
 <p>Let’s assume we have created a Python object in the global namespace, like this:</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='fu'><a href='https://rdrr.io/pkg/reticulate/man/py_run.html'>py_run_string</a></span><span class='op'>(</span><span class='st'>"x = 1"</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/reticulate/man/py_run.html'>py_run_string</a></span><span class='op'>(</span><span class='st'>"x = 1"</span><span class='op'>)</span>
 </code></pre>
 </div>
 </div>
@@ -2205,7 +2245,7 @@ gtag('config', 'UA-20375833-3');
 <p>We know the main entry point to conversion is <code>py_to_r</code>, defined as a generic in <code>conversion.R</code>:</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='va'>py_to_r</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>{</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>py_to_r</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>{</span>
   <span class='fu'>ensure_python_initialized</span><span class='op'>(</span><span class='op'>)</span>
   <span class='kw'><a href='https://rdrr.io/r/base/UseMethod.html'>UseMethod</a></span><span class='op'>(</span><span class='st'>"py_to_r"</span><span class='op'>)</span>
 <span class='op'>}</span>
@@ -2271,7 +2311,7 @@ Thread 1 &quot;R&quot; hit Breakpoint 1, 0x00007fffe48315d0 in py_to_r(libpython
 <p>but the comment <code>// [[Rcpp::export]]</code> tells Rcpp to generate an R wrapper, <code>py_ref_to_R</code>, that itself calls a C++ wrapper, <code>_reticulate_py_ref_to_r</code> …</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='va'>py_ref_to_r</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>{</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>py_ref_to_r</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>{</span>
   <span class='fu'><a href='https://rdrr.io/r/base/CallExternal.html'>.Call</a></span><span class='op'>(</span><span class='va'>`_reticulate_py_ref_to_r`</span>, <span class='va'>x</span><span class='op'>)</span>
 <span class='op'>}</span>
 </code></pre>
@@ -2335,7 +2375,7 @@ Thread 1 &quot;R&quot; hit Breakpoint 1, 0x00007fffe48315d0 in py_to_r(libpython
 <p>As this scenario is considerably more complex than the previous one, we will explicitly concentrate on some aspects and leave out others. Importantly, we’ll not go into module loading, which would deserve separate treatment of its own. Instead, we try to shed a light on what’s involved using a concrete example: the ubiquitous, in <code>keras</code> code, <code>keras_model_sequential()</code>. All this R function does is</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='kw'>function</span><span class='op'>(</span><span class='va'>layers</span> <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>name</span> <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span> <span class='op'>{</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'>function</span><span class='op'>(</span><span class='va'>layers</span> <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>name</span> <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span> <span class='op'>{</span>
   <span class='va'>keras</span><span class='op'>$</span><span class='va'>models</span><span class='op'>$</span><span class='fu'>Sequential</span><span class='op'>(</span>layers <span class='op'>=</span> <span class='va'>layers</span>, name <span class='op'>=</span> <span class='va'>name</span><span class='op'>)</span>
 <span class='op'>}</span>
 </code></pre>
@@ -2364,7 +2404,7 @@ Thread 1 &quot;R&quot; hit Breakpoint 1, 0x00007fffe48315d0 in py_to_r(libpython
 <p>In general, for R objects to be passed to Python, the process is somewhat opposite to what we described in example 1. Say we type:</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre><code><span class='va'>py</span><span class='op'>$</span><span class='va'>a</span> <span class='op'>&lt;-</span> <span class='fl'>1</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>py</span><span class='op'>$</span><span class='va'>a</span> <span class='op'>&lt;-</span> <span class='fl'>1</span>
 </code></pre>
 </div>
 </div>
@@ -2437,7 +2477,7 @@ Thread 1 &quot;R&quot; hit Breakpoint 1, 0x00007fffe48315d0 in py_to_r(libpython
   </p>
   <script id="dsq-count-scr" src="https://tensorflow-for-r-blog.disqus.com/count.js" async></script>
   <div id="disqus_thread" class="hidden"></div>
-  <script>
+  <script type="text/javascript" cookie-consent="functionality">
 var disqus_config = function () {
   this.page.url = 'https://blogs.rstudio.com/tensorflow/posts/2019-08-29-using-tf-from-r/';
   this.page.identifier = 'posts/2019-08-29-using-tf-from-r/';

@@ -2590,6 +2590,7 @@ print(sq_desc)&lt;/code&gt;&lt;/pre&gt;
 [ CUDAFloatType{1} ]&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;If all our &lt;em&gt;hello torch&lt;/em&gt; example did was run a network on, say, simulated data, we could stop here. As we’ll do image classification, however, we need to install another package: &lt;code&gt;torchvision&lt;/code&gt;.&lt;/p&gt;
 &lt;h4 id="torchvision"&gt;&lt;code&gt;torchvision&lt;/code&gt;&lt;/h4&gt;
+&lt;pre class="r"&gt;&lt;code&gt;FALSE&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Whereas &lt;code&gt;torch&lt;/code&gt; is where tensors, network modules, and generic data loading functionality live, datatype-specific capabilities are – or will be – provided by dedicated packages. In general, these capabilities comprise three types of things: datasets, tools for pre-processing and data loading, and pre-trained models.&lt;/p&gt;
 &lt;p&gt;As of this writing, PyTorch has dedicated libraries for three domain areas: vision, text, and audio. In R, we plan to proceed analogously – “plan”, because &lt;code&gt;torchtext&lt;/code&gt; and &lt;code&gt;torchaudio&lt;/code&gt; are yet to be created. Right now, &lt;code&gt;torchvision&lt;/code&gt; is all we need:&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;devtools::install_github(&amp;quot;mlverse/torchvision&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
