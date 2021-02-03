@@ -1,0 +1,19 @@
+---
+title: "Yitao Li test"
+description: |
+  Yitao Li test
+author:
+  - name: Yitao Li
+    url: https://github.com/yitao-li
+    affiliation: RStudio
+    affiliation_url: https://www.rstudio.com
+date: 02-03-2021
+categories:
+  - R
+  - Packages/Releases
+  - Distributed Computing
+output:
+  distill::distill_article:
+    self_contained: false
+
+Hello, world!
